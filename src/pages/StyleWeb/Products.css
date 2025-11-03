@@ -1,0 +1,250 @@
+.product-page {
+  height: 100vh; 
+  display: flex;
+  flex-direction: column;
+  padding: 0px 10px 0px 20px;
+  box-sizing: border-box;
+  
+ padding: 0px 20px 0px 30px;
+  background: #cccccc;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background: #ffffff;
+  padding: 10px;
+ 
+
+
+  
+}
+.product-header,
+.product-search {
+  flex-shrink: 0; /* Không bị thu nhỏ khi cuộn */
+  margin-bottom: 0px;
+  
+}
+.product-scroll-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 8px; /* Để tránh thanh cuộn đè lên nội dung */
+   scrollbar-width: none;       
+  -ms-overflow-style: none;
+}
+.product-scroll-container::-webkit-scrollbar {
+  display: none;                
+}
+.btn-add {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.product-search {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: end;
+  height: 40px;
+  padding-right: 10px;
+}
+
+.product-search input,
+.product-search select {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 3px solid #8c8a8a;
+  
+}
+
+.btn-search {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.product-card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.product-card img {
+  width: 50%;
+  height: 220px;
+  object-fit: cover;
+  
+}
+
+.product-info {
+  padding: 15px;
+}
+
+.product-info h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #333;
+}
+
+.info-boxes .box {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.status {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.icons {
+  display: flex;
+  gap: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-import {
+  background-color: #ffc107;
+  color: #333;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.updated-date {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #999;
+}
+input[name="ip-search"]{
+  width: 81.5%;
+}
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.image-wrapper img {
+  width: 50%;
+  height: 100%;
+  object-fit: cover;
+  margin-left: 100px;
+}
+
+.image-wrapper .nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.4);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  z-index: 10;
+  font-size: 18px;
+}
+
+.image-wrapper .nav.left {
+  left: 5px;
+}
+
+.image-wrapper .nav.right {
+  right: 5px;
+}
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.badge-featured {
+  background-color: gold;
+  color: black;
+}
+.badge-normal {
+  background-color: #ccc;
+  color: #333;
+}
+.status.in-stock { color: green; }
+.status.out-of-stock { color: red; }
+.status.stopped { color: gray; font-style: italic; }
+
+.modal-backdrop{
+  position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  display: flex; align-items: center; justify-content: center; z-index: 999;
+}
+.modal{
+  background: #fff; width: min(760px, 100vw); border-radius: 12px; padding: 16px 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+}
+.modal h3{ margin: 0 0 12px; }
+.modal-actions{ display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+.modal-actions .btn-primary{ background: #1677ff; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+.modal-actions button{ padding: 8px 14px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; }
+
+.restock-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.restock-table th {
+  background: #2c3e50; /* xanh đậm */
+  color: #fff;
+}
+
+.restock-table th, 
+.restock-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+  font-size: 14px;
+}
+
+.restock-table th {
+  font-weight: bold;
+}
+
+.restock-table td input {
+  width: 60px;
+  padding: 4px;
+  font-size: 13px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+

@@ -1,0 +1,45 @@
+.customer-detail-container {
+    max-width: 1000px;
+    margin: 3px auto;
+    padding: 24px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+.detail-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.detail-avatar-section {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.detail-avatar {
+    border: 2px solid #1890ff;
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.detail-table th,
+.detail-table td {
+    border: 1px solid #ccc;
+    padding: 22px 26px;
+    text-align: left;
+}
+
+.detail-table th {
+    background-color: #2c3e50;
+    color: #fff;
+    width: 30%;
+}
+
+.detail-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}

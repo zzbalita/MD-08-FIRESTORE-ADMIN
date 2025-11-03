@@ -1,0 +1,72 @@
+/* StyleWeb/CustomerList.css */
+.customer-container {
+  padding: 0px 20px 0px 50px;
+  background: #f9f9f9;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.customer-container h2 {
+  margin-bottom: 16px;
+}
+
+.customer-filter {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.customer-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.customer-table th,
+.customer-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+.customer-table thead {
+  background-color: #2f3e50;
+  color: white;
+}
+
+.customer-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.btn-edit {
+  background-color: #3b82f6;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  margin-right: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-delete {
+  background-color: #ef4444;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-edit:hover,
+.btn-delete:hover {
+  opacity: 0.9;
+}
+.avatar-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+

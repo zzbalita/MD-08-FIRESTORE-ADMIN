@@ -1,0 +1,97 @@
+.order-detail-page {
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+h2, h4 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.order-table thead {
+  background-color: #2c3e50;
+  color: #000;
+}
+
+.order-table th,
+.order-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.order-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.order-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.status-update-section {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.status-update-section label {
+  font-weight: bold;
+}
+
+.status-update-section select {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.status-update-section button {
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.status-update-section button:hover:not(:disabled) {
+  background-color: #1c6ca8;
+}
+
+.status-update-section button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.cancel-button {
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin-top: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.cancel-button:hover {
+    background-color: #d9363e;
+}

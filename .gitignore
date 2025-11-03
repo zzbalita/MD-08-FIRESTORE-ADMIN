@@ -1,8 +1,5 @@
 /node_modules
 /build
-/dist
-/public
-/src
 /test
 /test-results
 /test-results-legacy

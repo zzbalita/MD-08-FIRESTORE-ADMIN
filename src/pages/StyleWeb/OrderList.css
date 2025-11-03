@@ -1,0 +1,122 @@
+/* OrderList.css */
+
+.order-page {
+  padding: 24px;
+  height: 100vh; 
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.order-page h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.order-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.order-filters input,
+.order-filters select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.order-filters button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.order-filters button:hover {
+  background-color: #1e40af;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.order-table th,
+.order-table td {
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.order-table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+.status-label {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-pending {
+  background-color: #e2e90c;
+  color: white;
+}
+.status-confirmed {
+  background-color: #e90c9f;
+  color: white;
+}
+
+.status-processing {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.status-shipping {
+  background-color: #0ea5e9;
+  color: white;
+}
+
+.status-delivered {
+  background-color: #10b981;
+  color: white;
+}
+
+.status-cancelled {
+  background-color: #ef4444;
+  color: white;
+}
+
+.payment-tag {
+  padding: 4px 8px;
+  background-color: black;
+  color: white;
+  font-size: 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.order-action-btn {
+  background-color: #3b82f6;
+  color: white;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.order-action-btn:hover {
+  background-color: #2563eb;
+}
