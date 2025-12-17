@@ -6,10 +6,13 @@ import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import ProductCard from "../components/ProductCard";
 import { BASE_URL } from "../config";
 import { Modal, Button, Input } from "antd";
+import { useAdminAuth, isAdmin } from "../contexts/AdminAuthContext";
 
 export default function Products({ onResults }) {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+  const { adminInfo } = useAdminAuth();
+  const userIsAdmin = isAdmin(adminInfo);
   const [restockOpen, setRestockOpen] = useState(false);
   const [restockTarget, setRestockTarget] = useState(null);
   const [restockRows, setRestockRows] = useState([]); // {color,size,currentQty,addQty}
@@ -325,11 +328,13 @@ export default function Products({ onResults }) {
                       style={{ cursor: "pointer", color: "blue" }}
                       onClick={() => navigate(`/products/edit/${prod._id}`)}
                     />
-                    <FaTrash
-                      title="Xoá vĩnh viễn"
-                      onClick={() => openDeleteModal(prod)}
-                      style={{ color: "red", cursor: "pointer" }}
-                    />
+                    {userIsAdmin && (
+                      <FaTrash
+                        title="Xoá vĩnh viễn"
+                        onClick={() => openDeleteModal(prod)}
+                        style={{ color: "red", cursor: "pointer" }}
+                      />
+                    )}
                   </div>
                   <button className="btn-import" onClick={() => openRestock(prod)}>Nhập hàng</button>
                 </div>
