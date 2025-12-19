@@ -3,39 +3,37 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./StyleWeb/Login.css";
 import { BASE_URL } from "../config";
-import { useAdminAuth } from '../../src/contexts/AdminAuthContext';
-
+import { useAdminAuth, isAdmin } from '../contexts/AdminAuthContext';
 
 export default function Login() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); //điều hướng
+  const navigate = useNavigate();
   const { login } = useAdminAuth();
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await axios.post(`${BASE_URL}/api/admin/login`, {
-      phone,
-      password,
-    });
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(`${BASE_URL}/api/admin/login`, {
+        phone,
+        password,
+      });
 
-    const token = res.data.token;
-    const adminInfo = res.data.admin;
+      const token = res.data.token;
+      const adminInfo = res.data.admin;
 
-    login(token, adminInfo);
+      login(token, adminInfo);
 
-    // Debug
-    console.log("Token lưu trong localStorage:", localStorage.getItem('adminToken'));
-    console.log("Admin info lưu trong localStorage:", localStorage.getItem('adminInfo'));
-
-    // Chuyển màn
-    navigate("/statistics/products");
-  } catch (err) {
-    alert(err.response?.data?.message || "Sai số điện thoại hoặc mật khẩu");
-  }
-};
-
+      // Redirect based on role
+      if (isAdmin(adminInfo)) {
+        navigate("/statistics/products");
+      } else {
+        navigate("/products");
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || "Sai số điện thoại hoặc mật khẩu");
+    }
+  };
 
   return (
     <div className="login-container">
@@ -70,6 +68,13 @@ const handleLogin = async (e) => {
           <span>Quên mật khẩu? </span>
           <button type="button" onClick={() => navigate("/forgot-password")}>
             Lấy lại mật khẩu
+          </button>
+        </div>
+
+        <div className="login-link" style={{ marginTop: "12px" }}>
+          <span>Chưa có tài khoản? </span>
+          <button type="button" onClick={() => navigate("/register")}>
+            Đăng ký nhân viên
           </button>
         </div>
       </form>

@@ -13,7 +13,7 @@ export const AdminAuthProvider = ({ children }) => {
 
     if (storedToken) {
       setAdminToken(storedToken);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`; // Set token cho axios khi load lại
+      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
     }
     if (storedAdmin) {
       setAdminInfo(JSON.parse(storedAdmin));
@@ -26,7 +26,7 @@ export const AdminAuthProvider = ({ children }) => {
     localStorage.setItem('adminToken', token);
     localStorage.setItem('adminInfo', JSON.stringify(adminData));
 
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`; // ✅ Set token sau login
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   };
 
   const logout = () => {
@@ -46,3 +46,27 @@ export const AdminAuthProvider = ({ children }) => {
 };
 
 export const useAdminAuth = () => useContext(AdminAuthContext);
+
+// Helper functions for role checking
+export const isAdmin = (adminInfo) => {
+  return adminInfo?.role === 'admin' || adminInfo?.role === 'Admin';
+};
+
+export const isStaff = (adminInfo) => {
+  return adminInfo?.role === 'staff' || adminInfo?.role === 'Staff';
+};
+
+export const hasPermission = (adminInfo, permission) => {
+  if (!adminInfo) return false;
+  
+  // Admin has all permissions
+  if (isAdmin(adminInfo)) return true;
+  
+  // Staff permissions - deny specific permissions
+  if (isStaff(adminInfo)) {
+    const deniedPermissions = ['manage_taxonomy', 'manage_staff', 'view_statistics'];
+    return !deniedPermissions.includes(permission);
+  }
+  
+  return false;
+};
