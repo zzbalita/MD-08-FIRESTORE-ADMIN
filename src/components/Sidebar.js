@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   FaChartPie, FaBoxOpen, FaTags, FaClipboardList, FaUsers, FaCogs,
   FaShoppingBag, FaTextHeight, FaAlignLeft, FaChevronDown, FaChevronRight,
-  FaComments, FaUserTie
+  FaComments, FaUserTie, FaStar
 } from "react-icons/fa";
 import { useState } from "react";
 import "./Sidebar.css";
@@ -69,6 +69,7 @@ export default function Sidebar() {
         
         <NavLink to="/orders"><FaClipboardList className="icon" /> Đơn hàng</NavLink>
         <NavLink to="/customers"><FaUsers className="icon" /> Khách hàng</NavLink>
+        <NavLink to="/reviews"><FaStar className="icon" /> Đánh giá</NavLink>
         <NavLink to="/chat"><FaComments className="icon" /> Chăm sóc khách hàng</NavLink>
         
         {/* Staff management - Admin only */}

@@ -24,6 +24,7 @@ import AdminChatDashboard from "./pages/AdminChatDashboard";
 import ChangePassword from "./pages/ChangePassword";
 import StaffList from "./pages/StaffList";
 import StaffDetail from "./pages/StaffDetail";
+import Reviews from "./pages/Reviews";
 
 function App() {
   return (
@@ -200,6 +201,16 @@ function App() {
             <PrivateRoute requiredPermission="manage_staff">
               <AdminLayout>
                 <StaffDetail />
+              </AdminLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/reviews"
+          element={
+            <PrivateRoute>
+              <AdminLayout>
+                <Reviews />
               </AdminLayout>
             </PrivateRoute>
           }
