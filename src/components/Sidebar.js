@@ -25,7 +25,7 @@ export default function Sidebar() {
 
   return (
     <div className="sidebar">
-      <h2 className="logo">FIRESTORE ADMIN</h2>
+      <h2 className="logo">{userIsStaff ? "FIRESTORE STAFF" : "FIRESTORE ADMIN"}</h2>
 
       <nav className="nav-links">
         {/* Menu cha: Bảng điều khiển - Only show for Admin */}

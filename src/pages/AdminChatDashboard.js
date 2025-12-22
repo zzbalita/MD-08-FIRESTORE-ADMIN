@@ -18,16 +18,16 @@ const AdminChatDashboard = () => {
   const messagesEndRef = useRef(null);
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.1.9:5001' || 'http://localhost:5001';
 
-  // Check if user is admin
-  const isAdmin = adminInfo?.role === 'admin';
+  // Check if user is admin or staff
+  const isAdminOrStaff = adminInfo?.role === 'admin' || adminInfo?.role === 'staff';
 
   // Debug logging
   console.log('Admin Info:', adminInfo);
   console.log('Admin Token:', adminToken);
-  console.log('Is Admin:', isAdmin);
+  console.log('Is Admin or Staff:', isAdminOrStaff);
 
   useEffect(() => {
-    if (adminInfo && adminToken && isAdmin) {
+    if (adminInfo && adminToken && isAdminOrStaff) {
       loadAdminChats();
       setupSocketConnection();
     }
@@ -41,11 +41,11 @@ const AdminChatDashboard = () => {
         socket.disconnect();
       }
     };
-  }, [adminInfo, adminToken, isAdmin]);
+  }, [adminInfo, adminToken, isAdminOrStaff]);
 
   // Set up periodic refresh for real-time updates
   useEffect(() => {
-    if (!adminInfo || !adminToken || !isAdmin) return;
+    if (!adminInfo || !adminToken || !isAdminOrStaff) return;
 
     // Refresh sessions list every 30 seconds to catch any missed updates
     const sessionsInterval = setInterval(() => {
@@ -69,7 +69,7 @@ const AdminChatDashboard = () => {
       clearInterval(messagesInterval);
       clearInterval(statusInterval);
     };
-  }, [adminInfo, adminToken, isAdmin, selectedSession]);
+  }, [adminInfo, adminToken, isAdminOrStaff, selectedSession]);
 
   // Debug effect to log sessions state changes
   useEffect(() => {
@@ -393,12 +393,12 @@ const AdminChatDashboard = () => {
     return count;
   };
 
-  if (!adminInfo || !isAdmin) {
+  if (!adminInfo || !isAdminOrStaff) {
     return (
       <div className="admin-chat-container">
         <div className="access-denied">
           <h2>🔒 Truy cập bị từ chối</h2>
-          <p>Bạn cần đăng nhập với quyền admin để truy cập trang này.</p>
+          <p>Bạn cần đăng nhập với quyền admin hoặc staff để truy cập trang này.</p>
         </div>
       </div>
     );
