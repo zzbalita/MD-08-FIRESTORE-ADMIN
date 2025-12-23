@@ -3,6 +3,7 @@ import { useAdminAuth } from '../contexts/AdminAuthContext';
 import axios from 'axios';
 import io from 'socket.io-client';
 import '../pages/StyleWeb/AdminChat.css';
+import { BASE_URL } from '../config';
 
 const AdminChatDashboard = () => {
   const { adminToken, adminInfo } = useAdminAuth();
@@ -16,7 +17,7 @@ const AdminChatDashboard = () => {
   const [newMessageIndicator, setNewMessageIndicator] = useState(false);
   
   const messagesEndRef = useRef(null);
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://192.168.1.9:5001' || 'http://localhost:5001';
+  const API_BASE_URL = BASE_URL;
 
   // Check if user is admin or staff
   const isAdminOrStaff = adminInfo?.role === 'admin' || adminInfo?.role === 'staff';
@@ -36,7 +37,10 @@ const AdminChatDashboard = () => {
       if (socket) {
         // Leave admin chat room before disconnecting
         if (selectedSession) {
-          socket.emit('leaveAdminChat', { sessionId: selectedSession.session_id });
+          socket.emit('leaveChatSupportRoom', { 
+            roomId: selectedSession.room_id,
+            userId: adminInfo?.id || adminInfo?.username
+          });
         }
         socket.disconnect();
       }
@@ -55,7 +59,7 @@ const AdminChatDashboard = () => {
     // Refresh current chat messages every 15 seconds if a session is selected
     const messagesInterval = setInterval(() => {
       if (selectedSession) {
-        refreshCurrentChatMessages(selectedSession.session_id);
+        refreshCurrentChatMessages(selectedSession.room_id);
       }
     }, 15000);
 
@@ -74,56 +78,55 @@ const AdminChatDashboard = () => {
   // Debug effect to log sessions state changes
   useEffect(() => {
     console.log('📊 Sessions state changed:', sessions);
-    console.log('📊 Sessions with online status:', sessions.map(s => ({
-      session_id: s.session_id,
-      user_id: s.user?.id, // Changed from _id to id
-      is_online: s.is_online
-    })));
   }, [sessions]);
 
-  // Function to refresh user online status
-  const refreshUserOnlineStatus = async () => {
+  // Function to refresh user online status using chat-support API
+  const refreshUserOnlineStatus = async (currentSessions = null) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/users/online-status`, {
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        }
-      });
-
-      if (response.data.success) {
-        const onlineUsersList = response.data.data.onlineUsers;
-        setOnlineUsers(new Set(onlineUsersList));
-
-        console.log('🔍 Online users:', onlineUsersList);
-        console.log('🔍 Online users Set:', new Set(onlineUsersList));
-        console.log('🔍 Online users type check:', onlineUsersList.map(id => ({ id, type: typeof id })));
-        
-        // Update sessions with online status using the current state
-        setSessions(prevSessions => {
-          // Don't proceed if no sessions are loaded yet
-          if (prevSessions.length === 0) {
-            console.log('⚠️ No sessions loaded yet, skipping online status refresh');
-            return prevSessions;
+      const sessionsToCheck = currentSessions || sessions;
+      if (!sessionsToCheck || sessionsToCheck.length === 0) return;
+      
+      // Get online status for each user in sessions
+      const updatedSessions = await Promise.all(
+        sessionsToCheck.map(async (session) => {
+          if (!session.user?.id) return { ...session, is_online: false };
+          
+          try {
+            const response = await axios.get(
+              `${API_BASE_URL}/api/chat-support/status/${session.user.id}`,
+              {
+                headers: {
+                  'Authorization': `Bearer ${adminToken}`
+                }
+              }
+            );
+            
+            if (response.data.success) {
+              return {
+                ...session,
+                is_online: response.data.data.is_online || false
+              };
+            }
+          } catch (err) {
+            // Silently handle status check errors
+            console.log(`Could not get status for user ${session.user?.id}`);
           }
-          
-          console.log('🔄 Updating sessions with online status. Previous sessions:', prevSessions);
-          console.log('🔍 Current sessions count:', prevSessions.length);
-          
-          const updatedSessions = prevSessions.map(session => {
-            const userId = session.user?.id; // Changed from _id to id
-            const isOnline = userId ? onlineUsersList.includes(userId) : false;
-            
-            console.log(`Session ${session.session_id}: User ${userId} is ${isOnline ? 'online' : 'offline'}`);
-            
-            return {
-              ...session,
-              is_online: isOnline
-            };
-          });
-          
-          console.log('🔄 Updated sessions:', updatedSessions);
-          return updatedSessions;
-        });
+          return { ...session, is_online: false };
+        })
+      );
+      
+      // Only update if we have sessions
+      if (updatedSessions.length > 0) {
+        setSessions(updatedSessions);
+        
+        // Update online users set
+        const onlineUserIds = updatedSessions
+          .filter(s => s.is_online)
+          .map(s => s.user?.id)
+          .filter(Boolean);
+        setOnlineUsers(new Set(onlineUserIds));
+        
+        console.log('🔍 Online users:', onlineUserIds);
       }
     } catch (error) {
       console.error('Error refreshing user online status:', error);
@@ -140,72 +143,99 @@ const AdminChatDashboard = () => {
 
     newSocket.on('connect', () => {
       console.log('🔌 Admin connected to socket:', newSocket.id);
-      newSocket.emit('adminConnect', { adminId: adminInfo.username });
+      newSocket.emit('adminConnect', { adminId: adminInfo?.id || adminInfo?.username });
     });
 
+    // Listen for new chat sessions (new chat support system)
+    newSocket.on('newChatSession', (data) => {
+      console.log('🆕 New chat session:', data);
+      loadAdminChats();
+    });
+
+    // Listen for new user messages (new chat support system)
     newSocket.on('newUserMessage', (data) => {
       console.log('📱 New user message received:', data);
       
-      // Always refresh sessions list to show new message and update unread counts
+      // Refresh sessions list
       loadAdminChats();
       
-      // If this session is currently selected, add message to chat AND refresh messages
-      if (selectedSession && selectedSession.session_id === data.sessionId) {
-        // Add message to local state immediately for real-time feel
-        addMessageToChat({
-          message_id: data.messageId || `user_${Date.now()}`,
-          text: data.text,
-          is_user: true,
-          timestamp: data.timestamp,
-          user_id: data.userId
-        });
+      // If this room is currently selected, refresh messages
+      if (selectedSession && selectedSession.room_id === data.room_id) {
+        // Add message to local state immediately
+        if (data.message) {
+          addMessageToChat({
+            id: data.message._id || data.message.id || `user_${Date.now()}`,
+            message: data.message.message || data.message.text,
+            sender_type: data.message.sender_type || 'user',
+            is_from_user: true,
+            timestamp: data.message.timestamp || data.message.created_at || new Date()
+          });
+        }
         
-        // Show new message indicator
         setNewMessageIndicator(true);
-        
-        // Also refresh the full chat history to ensure consistency
-        refreshCurrentChatMessages(data.sessionId);
+        refreshCurrentChatMessages(data.room_id);
       }
     });
 
+    // Listen for new messages in joined rooms (new chat support system)
+    newSocket.on('newMessage', (data) => {
+      console.log('📨 New message received:', data);
+      
+      // Refresh sessions list
+      loadAdminChats();
+      
+      // If this room is currently selected, add message
+      if (selectedSession && selectedSession.room_id === data.room_id) {
+        if (data.message) {
+          const isFromUser = data.message.sender_type === 'user';
+          addMessageToChat({
+            id: data.message._id || data.message.id || `msg_${Date.now()}`,
+            message: data.message.message || data.message.text,
+            sender_type: data.message.sender_type,
+            is_from_user: isFromUser,
+            timestamp: data.message.timestamp || data.message.created_at || new Date()
+          });
+          
+          if (isFromUser) {
+            setNewMessageIndicator(true);
+          }
+        }
+        
+        refreshCurrentChatMessages(data.room_id);
+      }
+    });
+
+    // Listen for new admin messages
     newSocket.on('newAdminMessage', (data) => {
       console.log('👨‍💼 New admin message received:', data);
       
-      // Always refresh sessions list to update last message and timestamp
       loadAdminChats();
       
-      // If this session is currently selected, add message to chat AND refresh messages
-      if (selectedSession && selectedSession.session_id === data.sessionId) {
-        // Add message to local state immediately for real-time feel
-        addMessageToChat({
-          message_id: data.messageId || `admin_${Date.now()}`,
-          text: data.text,
-          is_user: false,
-          timestamp: data.timestamp,
-          admin_id: data.adminId
-        });
+      if (selectedSession && selectedSession.room_id === data.room_id) {
+        if (data.message) {
+          addMessageToChat({
+            id: data.message._id || data.message.id || `admin_${Date.now()}`,
+            message: data.message.message || data.message.text,
+            sender_type: 'admin',
+            is_from_user: false,
+            timestamp: data.message.timestamp || data.message.created_at || new Date()
+          });
+        }
         
-        // Also refresh the full chat history to ensure consistency
-        refreshCurrentChatMessages(data.sessionId);
+        refreshCurrentChatMessages(data.room_id);
       }
     });
 
-    newSocket.on('newAdminChatSession', (data) => {
-      console.log('🆕 New admin chat session:', data);
-      
-      // Join the admin chat room to receive messages
-      newSocket.emit('joinAdminChat', { sessionId: data.sessionId });
-      
-      // Refresh sessions list to show new session
+    // User joined room notification
+    newSocket.on('userJoinedRoom', (data) => {
+      console.log('👤 User joined room:', data);
       loadAdminChats();
-      
-      // Show notification to admin about new chat session
-      console.log(`🆕 New chat session from user: ${data.userName || 'Unknown user'}`);
     });
 
-    newSocket.on('userTypingInAdminChat', (data) => {
-      console.log('⌨️ User typing in admin chat:', data);
-      // You can add typing indicator here
+    // User left room notification
+    newSocket.on('userLeftRoom', (data) => {
+      console.log('👤 User left room:', data);
+      loadAdminChats();
     });
 
     newSocket.on('userTyping', (data) => {
@@ -216,102 +246,198 @@ const AdminChatDashboard = () => {
     setSocket(newSocket);
   };
 
+  // Load admin chat rooms using new chat support API
   const loadAdminChats = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/api/chat/admin/all-chats`, {
+      
+      // Use the new chat support API endpoint
+      const response = await axios.get(`${API_BASE_URL}/api/chat-support/admin/rooms?all=true&status=active`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`
         }
       });
 
       if (response.data.success) {
-        const newSessions = response.data.data.sessions;
-        console.log('📋 Loaded sessions:', newSessions);
-        console.log('📋 First session structure:', newSessions[0]);
-        console.log('📋 First session user object:', newSessions[0]?.user);
-        console.log('📋 First session user ID:', newSessions[0]?.user?.id);
+        const rooms = response.data.data.rooms || [];
+        console.log('📋 Loaded chat rooms:', rooms);
         
-        setSessions(newSessions);
+        // Transform rooms to match expected session format
+        const transformedSessions = rooms.map(room => ({
+          session_id: room.room_id, // Keep for backward compatibility
+          room_id: room.room_id,
+          socket_room: room.socket_room,
+          user: room.user,
+          admin: room.admin,
+          status: room.status,
+          last_message: room.last_message ? {
+            text: room.last_message.text,
+            is_user: room.last_message.sender_type === 'user',
+            timestamp: room.last_message.timestamp
+          } : null,
+          last_activity: room.last_activity,
+          total_messages: room.stats?.total_messages || 0,
+          unread_count: room.stats?.unread_user_messages || 0,
+          is_online: false // Will be updated by refreshUserOnlineStatus
+        }));
         
-        // Immediately refresh online status after loading sessions
-        await refreshUserOnlineStatus();
+        setSessions(transformedSessions);
+        
+        // Immediately refresh online status with the new sessions
+        await refreshUserOnlineStatus(transformedSessions);
         
         // If we have a selected session, update it with fresh data
         if (selectedSession) {
-          const updatedSession = newSessions.find(s => s.session_id === selectedSession.session_id);
+          const updatedSession = transformedSessions.find(s => s.room_id === selectedSession.room_id);
           if (updatedSession) {
             setSelectedSession(updatedSession);
-            console.log('🔄 Updated selected session with fresh data');
           }
         }
       }
     } catch (error) {
       console.error('Error loading admin chats:', error);
+      
+      // If the new endpoint doesn't exist, fall back to old endpoint
+      if (error.response?.status === 404) {
+        console.log('⚠️ New chat support API not found, trying legacy endpoint...');
+        try {
+          const legacyResponse = await axios.get(`${API_BASE_URL}/api/chat/admin/all-chats`, {
+            headers: {
+              'Authorization': `Bearer ${adminToken}`
+            }
+          });
+          
+          if (legacyResponse.data.success) {
+            setSessions(legacyResponse.data.data.sessions || []);
+          }
+        } catch (legacyError) {
+          console.error('Error loading legacy admin chats:', legacyError);
+        }
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Refresh messages for the currently selected chat session
-  const refreshCurrentChatMessages = async (sessionId) => {
-    if (!sessionId || !adminToken) return;
+  // Refresh messages for the currently selected chat room
+  const refreshCurrentChatMessages = async (roomId) => {
+    if (!roomId || !adminToken) return;
     
     try {
-      console.log('🔄 Refreshing chat messages for session:', sessionId);
-      const response = await axios.get(`${API_BASE_URL}/api/chat/admin/sessions/${sessionId}`, {
+      console.log('🔄 Refreshing chat messages for room:', roomId);
+      
+      // Use admin-specific chat support API endpoint
+      const response = await axios.get(`${API_BASE_URL}/api/chat-support/admin/rooms/${roomId}/history`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`
         }
       });
 
       if (response.data.success) {
-        // Only update messages if this session is still selected
-        if (selectedSession && selectedSession.session_id === sessionId) {
-          setMessages(response.data.data.messages);
-          console.log('✅ Chat messages refreshed:', response.data.data.messages.length);
-          scrollToBottom();
+        // Only update messages if this room is still selected
+        if (selectedSession && selectedSession.room_id === roomId) {
+          const transformedMessages = (response.data.data.messages || []).map(msg => ({
+            message_id: msg.id || msg._id,
+            text: msg.message,
+            is_user: msg.is_from_user || msg.sender_type === 'user',
+            timestamp: msg.timestamp,
+            sender_type: msg.sender_type,
+            sender_name: msg.sender_name
+          }));
           
-          // Clear new message indicator when messages are refreshed
+          setMessages(transformedMessages);
+          console.log('✅ Chat messages refreshed:', transformedMessages.length);
+          scrollToBottom();
           setNewMessageIndicator(false);
         }
       }
     } catch (error) {
       console.error('Error refreshing chat messages:', error);
+      
+      // Fallback to legacy endpoint
+      if (error.response?.status === 404) {
+        try {
+          const legacyResponse = await axios.get(`${API_BASE_URL}/api/chat/admin/sessions/${roomId}`, {
+            headers: {
+              'Authorization': `Bearer ${adminToken}`
+            }
+          });
+          
+          if (legacyResponse.data.success && selectedSession?.room_id === roomId) {
+            setMessages(legacyResponse.data.data.messages || []);
+            scrollToBottom();
+          }
+        } catch (legacyError) {
+          console.error('Error refreshing legacy chat messages:', legacyError);
+        }
+      }
     }
   };
 
   const selectSession = async (session) => {
     // Leave previous session room if exists
     if (selectedSession && socket) {
-      socket.emit('leaveAdminChat', { sessionId: selectedSession.session_id });
-      console.log('👨‍💼 Admin left admin chat room:', selectedSession.session_id);
+      socket.emit('leaveChatSupportRoom', { 
+        roomId: selectedSession.room_id,
+        userId: adminInfo?.id || adminInfo?.username
+      });
+      console.log('👨‍💼 Admin left chat room:', selectedSession.room_id);
     }
     
     setSelectedSession(session);
-    
-    // Clear new message indicator when switching sessions
     setNewMessageIndicator(false);
     
-    // Join the admin chat room to receive messages
+    // Join the new chat support room
     if (socket) {
-      socket.emit('joinAdminChat', { sessionId: session.session_id });
-      console.log('👨‍💼 Admin joined admin chat room:', session.session_id);
+      socket.emit('joinChatSupportRoom', { 
+        roomId: session.room_id,
+        userId: adminInfo?.id || adminInfo?.username,
+        userType: 'Admin'
+      });
+      console.log('👨‍💼 Admin joined chat room:', session.room_id);
     }
     
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/chat/admin/sessions/${session.session_id}`, {
+      // Use admin-specific chat support API to get chat history
+      const response = await axios.get(`${API_BASE_URL}/api/chat-support/admin/rooms/${session.room_id}/history`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`
         }
       });
 
       if (response.data.success) {
-        setMessages(response.data.data.messages);
+        const transformedMessages = (response.data.data.messages || []).map(msg => ({
+          message_id: msg.id || msg._id,
+          text: msg.message,
+          is_user: msg.is_from_user || msg.sender_type === 'user',
+          timestamp: msg.timestamp,
+          sender_type: msg.sender_type,
+          sender_name: msg.sender_name
+        }));
+        
+        setMessages(transformedMessages);
         scrollToBottom();
       }
     } catch (error) {
       console.error('Error loading chat history:', error);
+      
+      // Fallback to legacy endpoint
+      if (error.response?.status === 404) {
+        try {
+          const legacyResponse = await axios.get(`${API_BASE_URL}/api/chat/admin/sessions/${session.session_id}`, {
+            headers: {
+              'Authorization': `Bearer ${adminToken}`
+            }
+          });
+          
+          if (legacyResponse.data.success) {
+            setMessages(legacyResponse.data.data.messages || []);
+            scrollToBottom();
+          }
+        } catch (legacyError) {
+          console.error('Error loading legacy chat history:', legacyError);
+        }
+      }
     }
   };
 
@@ -319,8 +445,9 @@ const AdminChatDashboard = () => {
     if (!inputText.trim() || !selectedSession) return;
 
     try {
+      // Use new chat support API to send admin response
       const response = await axios.post(
-        `${API_BASE_URL}/api/chat/admin/sessions/${selectedSession.session_id}/respond`,
+        `${API_BASE_URL}/api/chat-support/admin/rooms/${selectedSession.room_id}/respond`,
         { message: inputText.trim() },
         {
           headers: {
@@ -331,10 +458,16 @@ const AdminChatDashboard = () => {
 
       if (response.data.success) {
         // Add message to local state
-        addMessageToChat(response.data.data.message);
-        setInputText('');
+        const newMessage = response.data.data.message;
+        addMessageToChat({
+          message_id: newMessage.id || newMessage._id || `admin_${Date.now()}`,
+          text: newMessage.message || inputText.trim(),
+          is_user: false,
+          timestamp: newMessage.timestamp || new Date(),
+          sender_type: 'admin'
+        });
         
-        // Clear new message indicator when admin sends a message
+        setInputText('');
         setNewMessageIndicator(false);
         
         // Refresh sessions list to update last message
@@ -342,18 +475,47 @@ const AdminChatDashboard = () => {
       }
     } catch (error) {
       console.error('Error sending admin response:', error);
-      alert('Không thể gửi tin nhắn. Vui lòng thử lại.');
+      
+      // Fallback to legacy endpoint
+      if (error.response?.status === 404) {
+        try {
+          const legacyResponse = await axios.post(
+            `${API_BASE_URL}/api/chat/admin/sessions/${selectedSession.session_id}/respond`,
+            { message: inputText.trim() },
+            {
+              headers: {
+                'Authorization': `Bearer ${adminToken}`
+              }
+            }
+          );
+          
+          if (legacyResponse.data.success) {
+            addMessageToChat(legacyResponse.data.data.message);
+            setInputText('');
+            loadAdminChats();
+          }
+        } catch (legacyError) {
+          console.error('Error sending legacy admin response:', legacyError);
+          alert('Không thể gửi tin nhắn. Vui lòng thử lại.');
+        }
+      } else {
+        alert('Không thể gửi tin nhắn. Vui lòng thử lại.');
+      }
     }
   };
 
   const addMessageToChat = (message) => {
-    setMessages(prev => [...prev, message]);
+    setMessages(prev => {
+      // Check if message already exists to avoid duplicates
+      const exists = prev.some(m => 
+        m.message_id === message.message_id || 
+        (m.text === message.text && m.timestamp === message.timestamp)
+      );
+      
+      if (exists) return prev;
+      return [...prev, message];
+    });
     setTimeout(scrollToBottom, 100);
-    
-    // Clear new message indicator when admin sends a message
-    if (!message.is_user) {
-      setNewMessageIndicator(false);
-    }
   };
 
   const scrollToBottom = () => {
@@ -381,16 +543,7 @@ const AdminChatDashboard = () => {
   };
 
   const getUnreadCount = (session) => {
-    // Count user messages since last admin response
-    let count = 0;
-    for (let i = session.messages?.length - 1; i >= 0; i--) {
-      if (session.messages[i].is_user) {
-        count++;
-      } else {
-        break; // Stop at first admin message
-      }
-    }
-    return count;
+    return session.unread_count || 0;
   };
 
   if (!adminInfo || !isAdminOrStaff) {
@@ -439,26 +592,23 @@ const AdminChatDashboard = () => {
                 const unreadCount = getUnreadCount(session);
                 const isOnline = session.is_online || false;
                 
-                console.log(`🎨 Rendering session ${session.session_id}: is_online = ${isOnline}`);
-                
                 return (
                   <div
-                    key={session.session_id}
-                    className={`session-item ${selectedSession?.session_id === session.session_id ? 'selected' : ''}`}
+                    key={session.room_id || session.session_id}
+                    className={`session-item ${selectedSession?.room_id === session.room_id ? 'selected' : ''}`}
                     onClick={() => selectSession(session)}
                   >
                     <div className="session-header">
                       <div className="user-info">
                         <div className="user-avatar">
-                          {session.user?.full_name?.charAt(0) || 'K'}
+                          {session.user?.name?.charAt(0) || session.user?.full_name?.charAt(0) || 'K'}
                         </div>
                         <div className="user-details">
-                          <h4>{session.user?.full_name || 'Khách hàng'}</h4>
+                          <h4>{session.user?.name || session.user?.full_name || 'Khách hàng'}</h4>
                           <p>{session.user?.email}</p>
                         </div>
                       </div>
                       <div className="session-meta">
-                        {/* {getSessionStatus(session)} */}
                         <span className={`online-status ${isOnline ? 'online' : 'offline'}`}>
                           {isOnline ? '🟢 Online' : '🔴 Offline'}
                         </span>
@@ -496,13 +646,13 @@ const AdminChatDashboard = () => {
               <div className="chat-header">
                 <div className="chat-user-info">
                   <h3>
-                    💬 Chat với {selectedSession.user?.full_name || 'Khách hàng'}
+                    💬 Chat với {selectedSession.user?.name || selectedSession.user?.full_name || 'Khách hàng'}
                     {newMessageIndicator && <span className="new-message-indicator">🆕</span>}
                   </h3>
                   <p>{selectedSession.user?.email}</p>
                   <div className="chat-meta">
-                    <span>Session: {selectedSession.session_id}</span>
-                    <span>Tin nhắn: {selectedSession.total_messages}</span>
+                    <span>Room: {selectedSession.room_id}</span>
+                    <span>Tin nhắn: {selectedSession.total_messages || messages.length}</span>
                   </div>
                 </div>
               </div>
@@ -525,13 +675,13 @@ const AdminChatDashboard = () => {
                         <div className="message-content">
                           <div className="message-header">
                             <span className="message-sender">
-                              {message.is_user ? '👤 Khách hàng' : '👨‍💼 Bạn'}
+                              {message.is_user ? '👤 Khách hàng' : `👨‍💼 ${message.sender_name || 'Bạn'}`}
                             </span>
                             <span className="message-time">
                               {formatTimestamp(message.timestamp)}
                             </span>
                           </div>
-                          <p className="message-text">{message.text}</p>
+                          <p className="message-text">{message.text || message.message}</p>
                         </div>
                       </div>
                     ))}
