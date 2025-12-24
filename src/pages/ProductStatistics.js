@@ -23,6 +23,12 @@ export default function ProductStatistics() {
     const [showAllProducts, setShowAllProducts] = useState(false);
     const [allProducts, setAllProducts] = useState([]);
     const [loadingAll, setLoadingAll] = useState(false);
+    const [showLowStockModal, setShowLowStockModal] = useState(false);
+    const [lowStockProducts, setLowStockProducts] = useState([]);
+    const [loadingLowStock, setLoadingLowStock] = useState(false);
+    const [showOutOfStockModal, setShowOutOfStockModal] = useState(false);
+    const [outOfStockProducts, setOutOfStockProducts] = useState([]);
+    const [loadingOutOfStock, setLoadingOutOfStock] = useState(false);
 
     const fetchStatistics = async () => {
         try {
@@ -53,6 +59,36 @@ export default function ProductStatistics() {
         }
     };
 
+    const fetchLowStockProducts = async () => {
+        try {
+            setLoadingLowStock(true);
+            const res = await axios.get(`${BASE_URL}/api/admin/statistics/products/low-stock`, {
+                headers: { Authorization: `Bearer ${adminToken}` }
+            });
+            setLowStockProducts(res.data.products || []);
+            setShowLowStockModal(true);
+        } catch (err) {
+            console.error("Lỗi khi lấy danh sách sản phẩm sắp hết hàng:", err);
+        } finally {
+            setLoadingLowStock(false);
+        }
+    };
+
+    const fetchOutOfStockProducts = async () => {
+        try {
+            setLoadingOutOfStock(true);
+            const res = await axios.get(`${BASE_URL}/api/admin/statistics/products/out-of-stock`, {
+                headers: { Authorization: `Bearer ${adminToken}` }
+            });
+            setOutOfStockProducts(res.data.products || []);
+            setShowOutOfStockModal(true);
+        } catch (err) {
+            console.error("Lỗi khi lấy danh sách sản phẩm hết hàng:", err);
+        } finally {
+            setLoadingOutOfStock(false);
+        }
+    };
+
     useEffect(() => {
         fetchStatistics();
     }, [filters, refreshKey]);
@@ -69,11 +105,11 @@ export default function ProductStatistics() {
                     <h4>Tổng tồn kho</h4>
                     <p>{summary.totalStock || 0}</p>
                 </div>
-                <div className="card low-stock">
+                <div className="card low-stock clickable" onClick={fetchLowStockProducts} style={{ cursor: "pointer" }}>
                     <h4>Sản phẩm sắp hết hàng</h4>
                     <p>{summary.lowStockCount || 0}</p>
                 </div>
-                <div className="card out-of-stock">
+                <div className="card out-of-stock clickable" onClick={fetchOutOfStockProducts} style={{ cursor: "pointer" }}>
                     <h4>Sản phẩm hết hàng</h4>
                     <p>{summary.outOfStockCount || 0}</p>
                 </div>
@@ -203,6 +239,102 @@ export default function ProductStatistics() {
                                         ) : (
                                             <tr>
                                                 <td colSpan="5" style={{ textAlign: "center" }}>Không có sản phẩm</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal hiển thị sản phẩm sắp hết hàng */}
+            {showLowStockModal && (
+                <div className="modal-overlay" onClick={() => setShowLowStockModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header" style={{ background: "linear-gradient(135deg, #ff758c, #ff7eb3)" }}>
+                            <h3>⚠️ Sản phẩm sắp hết hàng ({lowStockProducts.length})</h3>
+                            <button className="close-btn" onClick={() => setShowLowStockModal(false)}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            {loadingLowStock ? (
+                                <p>Đang tải...</p>
+                            ) : (
+                                <table className="stat-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Tên</th>
+                                            <th>Danh mục</th>
+                                            <th>Thương hiệu</th>
+                                            <th>Giá bán</th>
+                                            <th>Tồn kho</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {lowStockProducts.length > 0 ? (
+                                            lowStockProducts.map((p) => (
+                                                <tr key={p._id}>
+                                                    <td>{p.name}</td>
+                                                    <td>{p.category}</td>
+                                                    <td>{p.brand}</td>
+                                                    <td>{p.price?.toLocaleString()} đ</td>
+                                                    <td style={{ color: "#ff6b6b", fontWeight: "bold" }}>{p.totalStock}</td>
+                                                    <td>{p.status}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="6" style={{ textAlign: "center" }}>Không có sản phẩm sắp hết hàng</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal hiển thị sản phẩm hết hàng */}
+            {showOutOfStockModal && (
+                <div className="modal-overlay" onClick={() => setShowOutOfStockModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header" style={{ background: "linear-gradient(135deg, #75ff95, #7ef4ff)" }}>
+                            <h3>❌ Sản phẩm hết hàng ({outOfStockProducts.length})</h3>
+                            <button className="close-btn" onClick={() => setShowOutOfStockModal(false)}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            {loadingOutOfStock ? (
+                                <p>Đang tải...</p>
+                            ) : (
+                                <table className="stat-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Tên</th>
+                                            <th>Danh mục</th>
+                                            <th>Thương hiệu</th>
+                                            <th>Giá bán</th>
+                                            <th>Tồn kho</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {outOfStockProducts.length > 0 ? (
+                                            outOfStockProducts.map((p) => (
+                                                <tr key={p._id}>
+                                                    <td>{p.name}</td>
+                                                    <td>{p.category}</td>
+                                                    <td>{p.brand}</td>
+                                                    <td>{p.price?.toLocaleString()} đ</td>
+                                                    <td style={{ color: "#ff6b6b", fontWeight: "bold" }}>{p.totalStock}</td>
+                                                    <td>{p.status}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="6" style={{ textAlign: "center" }}>Không có sản phẩm hết hàng</td>
                                             </tr>
                                         )}
                                     </tbody>
