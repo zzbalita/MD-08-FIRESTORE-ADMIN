@@ -22,6 +22,9 @@ import OrderStatistics from "./pages/OrderStatistics";
 import InventoryStatistics from "./pages/InventoryStatistics";
 import AdminChatDashboard from "./pages/AdminChatDashboard";
 import ChangePassword from "./pages/ChangePassword";
+import StaffList from "./pages/StaffList";
+import StaffDetail from "./pages/StaffDetail";
+import Reviews from "./pages/Reviews";
 
 function App() {
   return (
@@ -30,6 +33,7 @@ function App() {
         {/* Public routes */}
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Admin routes - được bảo vệ */}
@@ -132,17 +136,21 @@ function App() {
         <Route
           path="/orders"
           element={
-            <AdminLayout>
-              <OrderList />
-            </AdminLayout>
+            <PrivateRoute>
+              <AdminLayout>
+                <OrderList />
+              </AdminLayout>
+            </PrivateRoute>
           }
         />
         <Route
           path="/admin/orders/:id"
           element={
-            <AdminLayout>
-              <OrderDetail />
-            </AdminLayout>
+            <PrivateRoute>
+              <AdminLayout>
+                <OrderDetail />
+              </AdminLayout>
+            </PrivateRoute>
           }
         />
         <Route
@@ -175,6 +183,36 @@ function App() {
             <AdminLayout>
               <ChangePassword />
             </AdminLayout>
+          }
+        />
+        <Route
+          path="/staff"
+          element={
+            <PrivateRoute requiredPermission="manage_staff">
+              <AdminLayout>
+                <StaffList />
+              </AdminLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/staff/:id"
+          element={
+            <PrivateRoute requiredPermission="manage_staff">
+              <AdminLayout>
+                <StaffDetail />
+              </AdminLayout>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/reviews"
+          element={
+            <PrivateRoute>
+              <AdminLayout>
+                <Reviews />
+              </AdminLayout>
+            </PrivateRoute>
           }
         />
       </Routes>

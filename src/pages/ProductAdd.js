@@ -159,9 +159,11 @@ export default function ProductAdd() {
 
   return (
     <div className="product-add-container">
-      <button onClick={() => navigate("/products")} className="btn-back">Quay lại</button>
-      <h2 style={{ marginLeft: "220px" }}>Thêm sản phẩm mới ✏️</h2>
-      {message && <div className="message-box">{message}</div>}
+      <div className="header-section">
+        <button onClick={() => navigate("/products")} className="btn-back">← Quay lại</button>
+        <h2>Thêm sản phẩm mới ✏️</h2>
+      </div>
+      {message && <div className={`message-box ${message.includes('❌') ? 'error' : ''}`}>{message}</div>}
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -351,70 +353,73 @@ export default function ProductAdd() {
           </div>
         ))}
 
-        <div className="form-group">
-          <h3><strong>Giá nhập</strong></h3>
-          <input
-            type="number"
-            value={importPrice}
-            onChange={(e) => setImportPrice(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <h3><strong>Giá bán</strong></h3>
-          <input
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-          />
-        </div>
-
-
-        <div className="form-group">
-          <h3><strong>Danh mục</strong></h3>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="">-- Chọn danh mục --</option>
-            {categories.map((c) => (
-              <option key={c._id} value={c.name}>{c.name}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="form-group">
-          <h3><strong>Thương hiệu</strong></h3>
-          <select value={brand} onChange={(e) => setBrand(e.target.value)}>
-            <option value="">-- Chọn thương hiệu --</option>
-            {brands.map((b) => (
-              <option key={b._id} value={b.name}>{b.name}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="form-group" style={{width:"550px"}}>
-          <h3><strong>
+        <div className="form-row">
+          <div className="form-group">
+            <h3><strong>Giá nhập</strong></h3>
             <input
-              type="checkbox"
-              checked={isFeatured}
-              onChange={(e) => setIsFeatured(e.target.checked)}
-              style={{ transform: "scale(1.5)", cursor: "pointer", }} 
-            />{" "}
-            Đánh dấu là sản phẩm nổi bật *</strong>
-          </h3>
+              type="number"
+              value={importPrice}
+              onChange={(e) => setImportPrice(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <h3><strong>Giá bán</strong></h3>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              required
+            />
+          </div>
         </div>
 
+        <div className="form-row">
+          <div className="form-group">
+            <h3><strong>Danh mục</strong></h3>
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="">-- Chọn danh mục --</option>
+              {categories.map((c) => (
+                <option key={c._id} value={c.name}>{c.name}</option>
+              ))}
+            </select>
+          </div>
 
-        <div className="form-group">
-          <h3><strong>Trạng thái</strong></h3>
-          <select value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option>Đang bán</option>
-            <option>Ngừng bán</option>
-          </select>
+          <div className="form-group">
+            <h3><strong>Thương hiệu</strong></h3>
+            <select value={brand} onChange={(e) => setBrand(e.target.value)}>
+              <option value="">-- Chọn thương hiệu --</option>
+              {brands.map((b) => (
+                <option key={b._id} value={b.name}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <h3><strong>Trạng thái</strong></h3>
+            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option>Đang bán</option>
+              <option>Ngừng bán</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <h3><strong>
+              <input
+                type="checkbox"
+                checked={isFeatured}
+                onChange={(e) => setIsFeatured(e.target.checked)}
+                style={{ transform: "scale(1.3)", cursor: "pointer", marginRight: "8px" }} 
+              />
+              Đánh dấu là sản phẩm nổi bật</strong>
+            </h3>
+          </div>
         </div>
 
         <button type="submit" className="submit-btn">Lưu sản phẩm</button>
-        {message && <div className="message-box">{message}</div>}
       </form>
     </div>
   );

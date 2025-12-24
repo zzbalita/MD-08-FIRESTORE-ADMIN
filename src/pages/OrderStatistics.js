@@ -6,7 +6,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from "recharts";
 import { BASE_URL } from "../config";
-import { useAdminAuth } from "../../src/contexts/AdminAuthContext";
+import { useAdminAuth } from "../contexts/AdminAuthContext";
 import { StatisticsContext } from "../layouts/AdminLayout";
 import "./StyleWeb/OrderStatistics.css";
 

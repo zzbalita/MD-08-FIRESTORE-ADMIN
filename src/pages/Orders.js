@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BASE_URL } from '../config';
-import { useAdminAuth } from '../../src/contexts/AdminAuthContext';
+import { useAdminAuth } from '../contexts/AdminAuthContext';
 import './StyleWeb/OrderList.css';
 import { Link } from 'react-router-dom';
 

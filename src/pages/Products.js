@@ -6,10 +6,13 @@ import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import ProductCard from "../components/ProductCard";
 import { BASE_URL } from "../config";
 import { Modal, Button, Input } from "antd";
+import { useAdminAuth, isAdmin } from "../contexts/AdminAuthContext";
 
 export default function Products({ onResults }) {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+  const { adminInfo } = useAdminAuth();
+  const userIsAdmin = isAdmin(adminInfo);
   const [restockOpen, setRestockOpen] = useState(false);
   const [restockTarget, setRestockTarget] = useState(null);
   const [restockRows, setRestockRows] = useState([]); // {color,size,currentQty,addQty}
@@ -20,6 +23,9 @@ export default function Products({ onResults }) {
   const [confirmText, setConfirmText] = useState("");
   const [keyword, setKeyword] = useState("");
   const [sort, setSort] = useState("");
+  const [featured, setFeatured] = useState("");
+  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState([]);
 
   // mở modal khi click xoá
   const openDeleteModal = (prod) => {
@@ -31,7 +37,17 @@ export default function Products({ onResults }) {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/categories`);
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Lỗi tải danh mục", err);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -45,9 +61,10 @@ export default function Products({ onResults }) {
     try {
       const res = await axios.get(`${BASE_URL}/api/products/search`, {
         params: {
-          name: keyword,   // đúng với backend
-          // category: nếu muốn lọc theo danh mục thì thêm
-          sort: sort,      // cái này backend chưa xử lý, sẽ nói thêm bên dưới
+          name: keyword,
+          sort: sort,
+          featured: featured,
+          category: category, // Thêm filter theo danh mục
         },
       });
       setProducts(res.data);
@@ -266,6 +283,17 @@ export default function Products({ onResults }) {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
           />
+          <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option value="">-Danh mục-</option>
+            {categories.map((c) => (
+              <option key={c._id} value={c.name}>{c.name}</option>
+            ))}
+          </select>
+          <select value={featured} onChange={(e) => setFeatured(e.target.value)}>
+            <option value="">-Loại sản phẩm-</option>
+            <option value="true">Nổi bật</option>
+            <option value="false">Thường</option>
+          </select>
           <select value={sort} onChange={(e) => setSort(e.target.value)}>
             <option value="">-Sắp xếp-</option>
             <option value="name_asc">Tên A-Z</option>
@@ -325,11 +353,13 @@ export default function Products({ onResults }) {
                       style={{ cursor: "pointer", color: "blue" }}
                       onClick={() => navigate(`/products/edit/${prod._id}`)}
                     />
-                    <FaTrash
-                      title="Xoá vĩnh viễn"
-                      onClick={() => openDeleteModal(prod)}
-                      style={{ color: "red", cursor: "pointer" }}
-                    />
+                    {userIsAdmin && (
+                      <FaTrash
+                        title="Xoá vĩnh viễn"
+                        onClick={() => openDeleteModal(prod)}
+                        style={{ color: "red", cursor: "pointer" }}
+                      />
+                    )}
                   </div>
                   <button className="btn-import" onClick={() => openRestock(prod)}>Nhập hàng</button>
                 </div>

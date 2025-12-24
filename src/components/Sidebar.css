@@ -8,20 +8,47 @@
     top: 0;
     left: 0;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
   
   .logo {
     font-size: 20px;
     font-weight: bold;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     text-align: center;
     color: #fff;
+    flex-shrink: 0;
   }
   
   .nav-links {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+    padding-bottom: 20px;
+  }
+
+  /* Custom scrollbar */
+  .nav-links::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .nav-links::-webkit-scrollbar-track {
+    background: #2e2e3e;
+    border-radius: 3px;
+  }
+
+  .nav-links::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+  }
+
+  .nav-links::-webkit-scrollbar-thumb:hover {
+    background: #777;
   }
   
   .nav-links a {

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BASE_URL } from '../config';
-import { useAdminAuth } from '../../src/contexts/AdminAuthContext';
+import { useAdminAuth } from '../contexts/AdminAuthContext';
 import './StyleWeb/OrderDetail.css';
 import { StatisticsContext } from "../layouts/AdminLayout";
 // Trạng thái đơn hàng (map cho hiển thị)

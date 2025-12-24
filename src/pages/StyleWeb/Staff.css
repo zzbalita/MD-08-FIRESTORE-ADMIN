@@ -1,0 +1,291 @@
+.staff-container {
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  margin: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.staff-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.staff-header h2 {
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.staff-header p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.staff-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.staff-actions label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #555;
+}
+
+.staff-actions select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.staff-actions button {
+  padding: 8px 16px;
+  background: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.staff-actions button:hover {
+  background: #1565c0;
+}
+
+.staff-error {
+  padding: 16px;
+  background: #ffebee;
+  color: #c62828;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.staff-loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.staff-table-wrapper {
+  overflow-x: auto;
+}
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.staff-table th,
+.staff-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.staff-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+}
+
+.staff-table tr:hover {
+  background: #fafafa;
+}
+
+.staff-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.staff-actions-cell {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.staff-actions-cell button,
+.staff-actions-cell a {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.staff-actions-cell button {
+  background: #4caf50;
+  color: white;
+}
+
+.staff-actions-cell button:hover {
+  background: #43a047;
+}
+
+.staff-actions-cell button.secondary,
+.staff-actions-cell a.secondary {
+  background: #ff9800;
+  color: white;
+}
+
+.staff-actions-cell button.secondary:hover,
+.staff-actions-cell a.secondary:hover {
+  background: #f57c00;
+}
+
+.staff-actions-cell button.danger {
+  background: #f44336;
+  color: white;
+}
+
+.staff-actions-cell button.danger:hover {
+  background: #d32f2f;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #1976d2;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  padding: 0;
+}
+
+.link-button:hover {
+  color: #1565c0;
+}
+
+/* Staff Detail styles */
+.staff-detail-container {
+  padding: 24px;
+  margin: 20px;
+}
+
+.back-btn {
+  background: #f5f5f5;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #333;
+}
+
+.back-btn:hover {
+  background: #e0e0e0;
+}
+
+.staff-detail-card {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+}
+
+.staff-detail-card h2 {
+  margin: 0 0 24px 0;
+  color: #333;
+  border-bottom: 2px solid #1976d2;
+  padding-bottom: 12px;
+}
+
+.staff-info-row {
+  display: flex;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.staff-info-row .label {
+  width: 140px;
+  font-weight: 600;
+  color: #555;
+}
+
+.staff-info-row .value {
+  flex: 1;
+  color: #333;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.status-pending {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.status-badge.status-active {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.status-disabled {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.staff-actions-row {
+  margin-top: 32px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.staff-actions-row button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.approve-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.approve-btn:hover {
+  background: #43a047;
+}
+
+.disable-btn {
+  background: #ff9800;
+  color: white;
+}
+
+.disable-btn:hover {
+  background: #f57c00;
+}
+
+.staff-actions-row .danger {
+  background: #f44336;
+  color: white;
+}
+
+.staff-actions-row .danger:hover {
+  background: #d32f2f;
+}
+

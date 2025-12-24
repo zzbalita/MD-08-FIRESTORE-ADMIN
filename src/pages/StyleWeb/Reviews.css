@@ -1,0 +1,259 @@
+.reviews-container {
+  padding: 0 20px 20px 30px;
+  background: #e4e4e4;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.reviews-container h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Summary Cards */
+.reviews-summary {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.summary-card {
+  flex: 1;
+  min-width: 100px;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.summary-card h4 {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.summary-card p {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.summary-card.total {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.summary-card.avg {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.summary-card.star5 {
+  background: linear-gradient(135deg, #11998e, #38ef7d);
+}
+
+.summary-card.star4 {
+  background: linear-gradient(135deg, #56ab2f, #a8e063);
+}
+
+.summary-card.star3 {
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+}
+
+.summary-card.star2 {
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+}
+
+.summary-card.star1 {
+  background: linear-gradient(135deg, #cb2d3e, #ef473a);
+}
+
+/* Filter */
+.reviews-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.reviews-filter label {
+  font-weight: 500;
+  color: #333;
+}
+
+.reviews-filter select {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #667eea;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+}
+
+.reviews-filter select:hover {
+  background-color: #5a6fd6;
+}
+
+/* Table */
+.reviews-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.reviews-table th {
+  background-color: #667eea;
+  color: #fff;
+  padding: 14px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.reviews-table td {
+  padding: 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.reviews-table tbody tr:hover {
+  background-color: #f8f9ff;
+}
+
+/* Product cell */
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-cell img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.product-cell span {
+  font-weight: 500;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Customer info */
+.customer-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-info strong {
+  font-weight: 600;
+  color: #333;
+}
+
+.customer-info small {
+  color: #888;
+  font-size: 12px;
+}
+
+/* Rating cell */
+.rating-cell .stars {
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+.rating-cell .rating-5 {
+  color: #11998e;
+}
+
+.rating-cell .rating-4 {
+  color: #56ab2f;
+}
+
+.rating-cell .rating-3 {
+  color: #f7971e;
+}
+
+.rating-cell .rating-2 {
+  color: #ff7e5f;
+}
+
+.rating-cell .rating-1 {
+  color: #cb2d3e;
+}
+
+/* Content cell */
+.content-cell {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.content-cell em {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Delete button */
+.delete-btn {
+  padding: 6px 14px;
+  background-color: #e63946;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background-color 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #c1121f;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding: 15px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  background-color: #667eea;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #5a6fd6;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+

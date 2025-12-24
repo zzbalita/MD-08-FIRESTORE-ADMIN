@@ -3,7 +3,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import "./StyleWeb/ProductStatistics.css";
 import { BASE_URL } from "../config";
-import { useAdminAuth } from '../../src/contexts/AdminAuthContext';
+import { useAdminAuth } from '../contexts/AdminAuthContext';
 import { StatisticsContext } from "../layouts/AdminLayout";
 
 export default function ProductStatistics() {
@@ -20,6 +20,9 @@ export default function ProductStatistics() {
         limit: 10
     });
     const [loading, setLoading] = useState(false);
+    const [showAllProducts, setShowAllProducts] = useState(false);
+    const [allProducts, setAllProducts] = useState([]);
+    const [loadingAll, setLoadingAll] = useState(false);
 
     const fetchStatistics = async () => {
         try {
@@ -37,6 +40,19 @@ export default function ProductStatistics() {
         }
     };
 
+    const fetchAllProducts = async () => {
+        try {
+            setLoadingAll(true);
+            const res = await axios.get(`${BASE_URL}/api/products`);
+            setAllProducts(res.data);
+            setShowAllProducts(true);
+        } catch (err) {
+            console.error("Lỗi khi lấy danh sách sản phẩm:", err);
+        } finally {
+            setLoadingAll(false);
+        }
+    };
+
     useEffect(() => {
         fetchStatistics();
     }, [filters, refreshKey]);
@@ -45,7 +61,7 @@ export default function ProductStatistics() {
             <h2>📊 Thống kê sản phẩm</h2>
             {/* Card thống kê */}
             <div className="stat-cards">
-                <div className="card total-products">
+                <div className="card total-products clickable" onClick={fetchAllProducts} style={{ cursor: "pointer" }}>
                     <h4>Tổng sản phẩm</h4>
                     <p>{summary.totalProducts || 0}</p>
                 </div>
@@ -122,7 +138,6 @@ export default function ProductStatistics() {
                 <table className="stat-table">
                     <thead>
                         <tr>
-                            <th>Ảnh</th>
                             <th>Tên</th>
                             <th>Danh mục</th>
                             <th>Trạng thái</th>
@@ -135,9 +150,6 @@ export default function ProductStatistics() {
                         {products.length > 0 ? (
                             products.map((p) => (
                                 <tr key={p._id}>
-                                    <td>
-                                        <img src={p.image} alt={p.name} width="50" />
-                                    </td>
                                     <td>{p.name}</td>
                                     <td>{p.category}</td>
                                     <td>{p.status}</td>
@@ -148,11 +160,57 @@ export default function ProductStatistics() {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="7" style={{ textAlign: "center" }}>Không có dữ liệu</td>
+                                <td colSpan="6" style={{ textAlign: "center" }}>Không có dữ liệu</td>
                             </tr>
                         )}
                     </tbody>
                 </table>
+            )}
+
+            {/* Modal hiển thị tất cả sản phẩm */}
+            {showAllProducts && (
+                <div className="modal-overlay" onClick={() => setShowAllProducts(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>📦 Danh sách tất cả sản phẩm ({allProducts.length})</h3>
+                            <button className="close-btn" onClick={() => setShowAllProducts(false)}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            {loadingAll ? (
+                                <p>Đang tải...</p>
+                            ) : (
+                                <table className="stat-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Tên</th>
+                                            <th>Danh mục</th>
+                                            <th>Thương hiệu</th>
+                                            <th>Giá bán</th>
+                                            <th>Trạng thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {allProducts.length > 0 ? (
+                                            allProducts.map((p) => (
+                                                <tr key={p._id}>
+                                                    <td>{p.name}</td>
+                                                    <td>{p.category?.name || p.category}</td>
+                                                    <td>{p.brand?.name || p.brand}</td>
+                                                    <td>{p.price?.toLocaleString()} đ</td>
+                                                    <td>{p.status}</td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="5" style={{ textAlign: "center" }}>Không có sản phẩm</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            )}
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
