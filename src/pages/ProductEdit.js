@@ -199,16 +199,16 @@ export default function ProductEdit() {
                 formData.append("imagesMode", "keep");
             }
 
-            await axios.put(`${BASE_URL}/api/products/${id}`, formData, {
+            const response = await axios.put(`${BASE_URL}/api/products/${id}`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-
 
             setMessage("✅ Cập nhật thành công!");
             setTimeout(() => navigate("/products"), 1000);
         } catch (err) {
             console.error("Lỗi khi cập nhật:", err);
-            setMessage("❌ Cập nhật thất bại.");
+            const errorMessage = err.response?.data?.message || err.message || "Cập nhật thất bại";
+            setMessage(`❌ ${errorMessage}`);
         }
     };
 
@@ -386,7 +386,6 @@ export default function ProductEdit() {
                                         <input
                                             type="text"
                                             value={v.color}
-                                            disabled={product?.hasOrders}
                                             onChange={(e) => {
                                                 const newVars = [...variations];
                                                 newVars[idx].color = e.target.value;
@@ -398,7 +397,6 @@ export default function ProductEdit() {
                                     <td style={{ padding: "6px", border: "1px solid #ddd" }}>
                                         <select
                                             value={v.size}
-                                            disabled={product?.hasOrders}
                                             onChange={(e) => {
                                                 const newVars = [...variations];
                                                 newVars[idx].size = e.target.value;
@@ -417,7 +415,6 @@ export default function ProductEdit() {
                                         <input
                                             type="number"
                                             value={v.quantity}
-                                            disabled={product?.hasOrders}
                                             onChange={(e) => {
                                                 const newVars = [...variations];
                                                 newVars[idx].quantity = Number(e.target.value);
@@ -427,27 +424,19 @@ export default function ProductEdit() {
                                         />
                                     </td>
                                     <td style={{ padding: "6px", border: "1px solid #ddd" }}>
-                                        {product?.hasOrders ? (
-                                            <button
-                                                type="button"
-                                                className="btn-save"
-                                                disabled
-                                                style={{ backgroundColor: "#ef6161ff", cursor: "not-allowed", color:"#fff" }}
-                                            >
-                                                Không thể sửa
-                                            </button>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                className="btn-save"
-                                                onClick={() => {
-                                                    alert("Đã lưu chỉnh sửa biến thể!");
-                                                    // TODO: call API update backend
-                                                }}
-                                            >
-                                                Lưu
-                                            </button>
-                                        )}
+                                        <button
+                                            type="button"
+                                            className="btn-save"
+                                            onClick={() => {
+                                                // Remove variation from list
+                                                const newVars = variations.filter((_, i) => i !== idx);
+                                                setVariations(newVars);
+                                                setMessage("✅ Đã xóa biến thể!");
+                                            }}
+                                            style={{ backgroundColor: "#ef6161", color: "#fff" }}
+                                        >
+                                            Xóa
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
