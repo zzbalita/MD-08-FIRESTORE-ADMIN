@@ -12,14 +12,14 @@ export default function CustomerList() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [lockedFilter, setLockedFilter] = useState("");
   const navigate = useNavigate();
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${BASE_URL}/api/admin/users`, {
-        params: { keyword, status: statusFilter },
+        params: { keyword, is_account_locked: lockedFilter },
         withCredentials: true,
       });
       setUsers(res.data.users || []);
@@ -32,18 +32,18 @@ export default function CustomerList() {
 
   useEffect(() => {
     fetchUsers();
-  }, [keyword, statusFilter]);
+  }, [keyword, lockedFilter]);
 
-  const handleToggleStatus = async (id, currentStatus) => {
+  const handleToggleLock = async (id, isCurrentlyLocked) => {
     try {
       await axios.put(`${BASE_URL}/api/admin/users/${id}/status`,
-        { status: currentStatus === 1 ? 0 : 1 },
+        { is_account_locked: !isCurrentlyLocked },
         { withCredentials: true }
       );
       fetchUsers();
-      message.success("Cập nhật trạng thái thành công");
+      message.success(isCurrentlyLocked ? "Mở khóa tài khoản thành công" : "Khóa tài khoản thành công");
     } catch (err) {
-      message.error("Lỗi khi cập nhật trạng thái");
+      message.error("Lỗi khi cập nhật trạng thái khóa tài khoản");
     }
   };
 
@@ -59,14 +59,14 @@ export default function CustomerList() {
           style={{ width: 300 }}
         />
         <Select
-          placeholder="Lọc theo trạng thái"
-          value={statusFilter || undefined}
-          onChange={(value) => setStatusFilter(value)}
+          placeholder="Lọc theo trạng thái khóa"
+          value={lockedFilter || undefined}
+          onChange={(value) => setLockedFilter(value)}
           allowClear
           style={{ width: 180 }}
         >
-          <Option value="1">Hoạt động</Option>
-          <Option value="0">Bị khóa</Option>
+          <Option value="false">Tài khoản hoạt động</Option>
+          <Option value="true">Tài khoản bị khóa</Option>
         </Select>
       </div>
 
@@ -116,8 +116,8 @@ export default function CustomerList() {
                   <td>{user.full_name}</td>
                   <td>{user.email}</td>
                   <td>{user.phone_number || "Chưa có"}</td>
-                  <td style={{ color: user.status === 1 ? "green" : "red" }}>
-                    {user.status === 1 ? "Hoạt động" : "Bị khóa"}
+                  <td style={{ color: user.is_account_locked ? "red" : "green" }}>
+                    {user.is_account_locked ? "Bị khóa" : "Hoạt động"}
                   </td>
                   <td>
                     <button
@@ -128,9 +128,9 @@ export default function CustomerList() {
                     </button>
                     <button
                       className="btn-delete"
-                      onClick={() => handleToggleStatus(user._id, user.status)}
+                      onClick={() => handleToggleLock(user._id, user.is_account_locked)}
                     >
-                      {user.status === 1 ? "🔒" : "🔓"}
+                      {user.is_account_locked ? "🔓" : "🔒"}
                     </button>
                   </td>
                 </tr>
